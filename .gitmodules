@@ -1,0 +1,9 @@
+[submodule "generators/squares"]
+	path = generators/squares
+	url = https://github.com/s3h10r/Squares
+[submodule "generators/random-art"]
+	path = generators/random-art
+	url = https://github.com/s3h10r/random-art
+[submodule "filters/quads"]
+	path = filters/quads
+	url = https://github.com/s3h10r/Quads/
