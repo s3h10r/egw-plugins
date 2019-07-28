@@ -22,7 +22,7 @@ kwargs = {  'nr_lines' : random.randint(3,800/20), 'thickness' : random.randint(
             'size' : 800,
           }
 author = "Sven Hessenmüller <sven.hessenmueller@gmail.com>"
-version = "0.1.2"
+version = "0.1.4"
 __version__ = version
 
 # --- configure logging
@@ -109,17 +109,23 @@ def _generate_nlines(nr_lines = 10, thickness = 3, x_step = 10, img_mode = 'RGBA
     if not seed:
         seed = random.randrange(sys.maxsize)
     random.seed(seed)
+    if not isinstance(color, tuple):
+        color = tuple(color)
     complement_color = complement(color[0], color[1], color[2])
     if img_mode == 'RGBA':
         complement_color = (complement_color[0],complement_color[1],complement_color[2],255)
     if not bg_color:
         log.debug("setting bg_color to complement of {}: {}".format(color,complement_color))
         bg_color = complement_color
+    if not isinstance(bg_color, tuple):
+        bg_color = tuple(bg_color)
     img = Image.new(img_mode, (size,size), bg_color)
     margin = int(size * 0.10)
     max_line_height = int ((size - margin*2)/ nr_lines)
     max_line_length = int(size - margin*2)
-    log.debug("nr_lines: {} x_step: {} thickness: {} margin: {}".format(nr_lines, x_step, thickness, margin))
+    log.info("seed : {}".format(seed))
+    log.info("nr_lines: {} x_step: {} thickness: {} margin: {}".format(nr_lines, x_step, thickness, margin))
+    log.info("color: {} bg_color: {}".format(color, bg_color))
     log.debug("max_line_height: {} max_line_length: {}".format(max_line_height, max_line_length,))
     if max_line_length % x_step != 0:
         while max_line_length % x_step != 0:
