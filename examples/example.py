@@ -8,9 +8,18 @@ import string
 name = "example"
 description = "a template you can use to roll your own plugins"
 kwargs = { 'arg1' : 'val1', 'arg2' : 'val2', } # plugin specific arguments (if any)
-args = None
 author = "optional author and copyright infos"
 version = "0.2.0"
+__version__ = version
+
+# --- configure logging
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+handler = logging.StreamHandler() # console-handler
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+log.addHandler(handler)
+# ---
 
 def run(**kwargs):
     """
@@ -35,22 +44,21 @@ def get_plugin_doc(format='text'):
     kwargs  : $kwargs
     args    : $args
     author  : $author
-    version : __version__
+    version : $version
     """)
     return tpl_doc.substitute({
         'name' : name,
         'description' : description,
         'kwargs' : kwargs,
-        'args'    : args,
         'author'  : author,
         'version' : __version__,
         })
-
-if __name__ == '__main__':
-    print(get_plugin_doc())
 
 # === END einguteswerkzeug plugin-interface
 
 # --- .. here comes the plugin-specific part to get some work done...
 def _somework(arg1=None, arg2 = None):
     return ("Hello from Plugin dummy1. arg1=%s, arg2=%s " % (arg1,arg2))
+
+if __name__ == '__main__':
+    print(get_plugin_doc())
