@@ -13,6 +13,16 @@ args = None
 author = "Sven Hessenmüller <sven.hessenmueller@gmail.com>"
 version = "0.0.1"
 
+# --- configure logging
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
+handler = logging.StreamHandler() # console-handler
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+log.addHandler(handler)
+# ---
+
+
 def run(**kwargs):
     """
     this is the interface/wrapper around the functionality of the plugin.

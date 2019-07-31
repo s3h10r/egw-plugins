@@ -25,7 +25,7 @@ __version__ = version
 
 # --- configure logging
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 handler = logging.StreamHandler() # console-handler
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
