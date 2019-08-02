@@ -41,11 +41,11 @@ assert isinstance(filter,EGWPluginFilter)
 def _molten(image):
     '''
     @效果：熔铸
-    @param img: instance of Image
+    @param image: instance of Image
     @return: instance of Image
     '''
-    if img.mode != "RGB":
-        img.convert("RGB")
+    if image.mode != "RGB":
+        image.convert("RGB")
     width, height = image.size
     pix = image.load()
     for w in range(width):

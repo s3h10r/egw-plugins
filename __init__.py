@@ -111,9 +111,9 @@ class EGWPluginBase(ABC):
 
         @abstractmethod
         def run(self):
-            self._check_if_okay_to_run()
-            # do the work ...
-            pass
+            if self._check_if_okay_to_run():
+                # do the work and return an Image instance...
+                pass
 
 
         def execute(self):
@@ -139,15 +139,12 @@ class EGWPluginFilter(EGWPluginBase):
         returns an Image instance
         """
         if self._check_if_okay_to_run():
-            return self._do_some_work(self._kwargs)
+            # do the work and return an Image instance...
+            pass
 
 
     def execute(self):
         self.run(self)
-
-
-    def _do_some_work(self, **kwargs):
-        raise Exception("Overwrite me in the subclass.")
 
 
 class EGWPluginGenerator(EGWPluginBase):
@@ -164,15 +161,12 @@ class EGWPluginGenerator(EGWPluginBase):
     @abstractmethod
     def run(self): # implement this in the subclass
         if self._check_if_okay_to_run():
-            return self._do_some_work(self._kwargs)
+            # do the work and return an Image instance...
+            pass
 
 
     def execute(self):
         self.run(self)
-
-
-    def _do_some_work(self, **kwargs): # implement this
-        raise Exception("This is an example. Override me in subclass")
 
 
 if __name__ == '__main__':

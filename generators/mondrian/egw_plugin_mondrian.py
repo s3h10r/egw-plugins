@@ -1,39 +1,20 @@
 #!/usr/bin/env python
 #coding=utf-8
-# === einguteswerkzeug plugin-interface ===
-# --- all einguteswerkzeug-plugins (generators, filters) must implement this
-import logging
-import json
-import math
-import random
-import string
-import sys
-
-from PIL import Image, ImageDraw
-
-name = "mondrian"
-description = "a simple recursive generator inspired by the art of Piet Mondrian"
-long_description = """
+"""
 Piet Mondrian (March 7, 1872 – February 1, 1944) was a Dutch painter.
 He is known to be one of the pioneers of 20th century abstract art. Piet Mondrain
 created numerous famous paintings in the early half of the previous century
 that consisted of a white background, prominent black horizontal and vertical
 lines, and regions colored with red, yellow and blue.
 """
-author = "adopted from http://nifty.stanford.edu/2018/stephenson-mondrian-art/"
-version = "0.1.2"
-__version__ = version
-
-kwargs = {  'width' : 1200, 'height' : 1200,
-            'split_low' : 120, 'split_penalty' : 1.5,
-            # default: red, blue, yellow, white
-            'colors' : [(255,0,0,255),(135,206,255,255), (255,255,0,255), (255,255,255,255)],
-            'bg_color' : (255,255,255,255),
-            'outline_color' : (0,0,0,255),
-            'outline_width' : None,
-            'img_mode' : "RGBA",
-            'seed' : random.randrange(sys.maxsize),
-          }
+import logging
+import json
+import math
+import random
+import string
+import sys
+from PIL import Image, ImageDraw
+from einguteswerkzeug.plugins import EGWPluginGenerator
 
 # --- configure logging
 log = logging.getLogger(__name__)
@@ -44,52 +25,52 @@ handler.setFormatter(formatter)
 log.addHandler(handler)
 # ---
 
-def run(**kwargs):
-    """
-    this is the interface/wrapper around the functionality of the plugin.
-    """
-    meta = None
-    _setup_globals()
-    return _do_mondrian(**kwargs), meta
-# --- END all einguteswerkzeug-plugins (generators, filters) must implement this
+fmeta = {
+    "name" : "mondrian",
+    "version" : "0.1.4",
+    "description" : "a simple recursive generator inspired by the art of Piet Mondrian",
+    "author" : "adopted from http://nifty.stanford.edu/2018/stephenson-mondrian-art/"
+}
 
-def get_plugin_doc(format='text'):
-    """
-    """
-    if format not in ('txt', 'text', 'plaintext'):
-        raise Exception("Sorry. format %s not available. Valid options are ['text']" % format)
-    tpl_doc = string.Template("""
-    generator.$name - $description
-    kwargs  : $kwargs
-    author  : $author
-    version : $version
-    """)
-    return tpl_doc.substitute({
-        'name' : name,
-        'description' : description,
-        'kwargs' : kwargs,
-        'author'  : author,
-        'version' : __version__,
-        })
+class Mondrian(EGWPluginGenerator):
+    def __init__(self, **kwargs):
+        super().__init__(**fmeta)
+        # defining mandatory kwargs (addionals to the mandatory of the base-class)
+        add_kwargs = { 'split_low' : 120, 'split_penalty' : 1.5,
+                    # default: red, blue, yellow, white
+                    'colors' : [(255,0,0,255),(135,206,255,255), (255,255,0,255), (255,255,255,255)],
+                    'bg_color' : (255,255,255,255),
+                    'outline_color' : (0,0,0,255),
+                    'outline_width' : int(self.kwargs['size'][1] * 0.005),
+                    'img_mode' : "RGBA",
+                    'seed' : random.randrange(sys.maxsize),
+                  }
+        self._define_mandatory_kwargs(self, **add_kwargs)
+        self.kwargs = kwargs
 
-# === END einguteswerkzeug plugin-interface
 
-# --- .. here comes the plugin-specific part to get some work done...
+    def run(self):
+        _setup_globals(**self._kwargs)
+        return _do_mondrian()
 
-def _setup_globals():
-    """
-    check & setup globals
-    """
+
+
+generator = Mondrian()
+assert isinstance(generator,EGWPluginGenerator)
+
+
+kwargs = {}
+
+def _setup_globals(**kwarg):
     global kwargs
-    if not kwargs['outline_width']:
-        kwargs['outline_width'] = int(kwargs['height'] * 0.005)
-        log.info("setoutline_width to {}".format(kwargs['outline_width'] ))
+    kwargs = kwarg
 
-def _do_mondrian(**kwargs):
+def _do_mondrian():
+    global kwargs
     seed = kwargs['seed']
     img_mode = kwargs['img_mode']
-    w = kwargs['width']
-    h = kwargs['height']
+    w = kwargs['size'][0]
+    h = kwargs['size'][1]
     bg_color = kwargs['bg_color']
     if not seed:
         seed = random.randrange(sys.maxsize)
@@ -152,6 +133,7 @@ def _mondrian(x = 0, y = 0, w = 1024, h = 768, image = None):
     """
     Use recursion to draw "art" in a Mondrian style
     """
+    global kwargs
     WIDTH, HEIGHT = image.size
     SPLIT_LOW = kwargs['split_low']
     SPLIT_PENALTY = kwargs['split_penalty']
@@ -183,12 +165,3 @@ def _mondrian(x = 0, y = 0, w = 1024, h = 768, image = None):
             draw = ImageDraw.Draw(image)
             draw.rectangle([(x, y), (x + w, y + h)], fill = _get_random_color(COLORS),outline=OUTLINE_COLOR, width = OUTLINE_WIDTH)
     return image
-
-if __name__ == '__main__':
-    print(get_plugin_doc())
-    img,meat = run(**kwargs)
-    if len(sys.argv) > 1:
-        fout = sys.argv[1]
-        img.save(fout)
-    else:
-        print("usage (selftest): %s <file_out.jpg>" % __file__)
