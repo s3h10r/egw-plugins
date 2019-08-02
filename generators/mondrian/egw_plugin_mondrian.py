@@ -165,3 +165,12 @@ def _mondrian(x = 0, y = 0, w = 1024, h = 768, image = None):
             draw = ImageDraw.Draw(image)
             draw.rectangle([(x, y), (x + w, y + h)], fill = _get_random_color(COLORS),outline=OUTLINE_COLOR, width = OUTLINE_WIDTH)
     return image
+
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("usage selftest: <me> image_out")
+    else:
+        gen = Mondrian(size=(1024,768))
+        img = gen.run()
+        img.save(sys.argv[1])
