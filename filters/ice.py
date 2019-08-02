@@ -30,8 +30,8 @@ class Ice(EGWPluginFilter):
         self.kwargs = kwargs
 
 
-    def run(self):
-        return _ice(**self._kwargs)
+    def _generate_image(self):
+        return self._ice(**self._kwargs)
 
 
     def _ice(image):

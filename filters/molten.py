@@ -30,7 +30,7 @@ class Molten(EGWPluginFilter):
         self.kwargs = kwargs
 
 
-    def run(self):
+    def _generate_image(self):
         return _molten(**self._kwargs)
 
 

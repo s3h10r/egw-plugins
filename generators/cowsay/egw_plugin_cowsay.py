@@ -1,27 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #coding=utf-8
-
-# === einguteswerkzeug plugin-interface ===
-# --- all einguteswerkzeug-plugins (generators, filters) must implement this
 import logging
 import random
 import string
-import subprocess
 from cowpy import cow
 from PIL import  Image, ImageDraw, ImageFont
 from einguteswerkzeug.helpers import get_resource_file
 from einguteswerkzeug.helpers.gfx import scale_image_to_square
-name = "cowsay"
-description = "aphorisms, thoughts, affirmations"
-kwargs = {'message' : None,
-          'messages' : "messages.json", # quotes or alike
-          'cowfiles' : "/usr/share/cowsay/cows", #templates
-          'cowsay_bin' : "/usr/games/cowsay",
-          }
-args=None
-author = "Sven Hessenmüller"
-version = '0.1.2'
-__version__ = version
+from einguteswerkzeug.plugins import EGWPluginGenerator
+
 
 # --- configure logging
 log = logging.getLogger(__name__)
@@ -32,43 +19,35 @@ handler.setFormatter(formatter)
 log.addHandler(handler)
 # ---
 
-def run(message, messages, cowfiles, cowsay_bin):
-    """
-    this is the wrapper around the functionality of the plugin.
-    """
-    return _somework(message=message, messages=messages, cowfiles=cowfiles, cowsay_bin=cowsay_bin) , "generator %s v%s" % (name, __version__)
+meta = {
+    "name" : "cowsay",
+    "version" : "0.0.5",
+    "description" : "TODO: aphorisms, thoughts, affirmations",
+    "author" : "Sven Hessenmüller <sven.hessenmueller@gmail.com>"
+}
 
-# --- END all einguteswerkzeug-plugins (generators, filters) must implement this
+class Cowsay(EGWPluginGenerator):
+    def __init__(self, **kwargs):
+        super().__init__(**meta)
+        # defining mandatory kwargs (addionals to the mandatory of the base-class)
+        add_plugin_kwargs = {'message' : None,
+                             'messages' : "messages.json", # quotes or alike
+                             'cowfiles' : "/usr/share/cowsay/cows", #templates
+                             'cowsay_bin' : "/usr/games/cowsay",
+                            }
+        self._define_mandatory_kwargs(self, **add_plugin_kwargs)
+        self.kwargs = kwargs
 
-def get_plugin_doc(format='text'):
-    """
-    """
-    if format not in ('txt', 'text', 'plaintext'):
-        raise Exception("Sorry. format %s not available. Valid options are ['text']" % format)
-    tpl_doc = string.Template("""
-    filters.$name - $description
-    kwargs  : $kwargs
-    args    : $args
-    author  : $author
-    version : __version__
-    """)
-    return tpl_doc.substitute({
-        'name' : name,
-        'description' : description,
-        'kwargs' : kwargs,
-        'args'    : args,
-        'author'  : author,
-        'version' : __version__,
-        })
+    def _generate_image(self):
+        return _do_cowsay(self.kwargs['message'])
 
-if __name__ == '__main__':
-    print(get_plugin_doc())
 
-# === END einguteswerkzeug plugin-interface
+generator = Cowsay()
+assert isinstance(generator,EGWPluginGenerator)
 
 # --- .. here comes the plugin-specific part to get some work done...
 
-def _somework(message=None, messages=None, cowfiles=None, cowsay_bin = None, color = (0,0,255)):
+def _do_cowsay(message=None, messages=None, cowfiles=None, cowsay_bin = None, color = (0,0,255)):
     if message :
         msg = cow.milk_random_cow(message)
     else:

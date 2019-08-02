@@ -28,8 +28,8 @@ class Pixelsort(EGWPluginFilter):
         self._define_mandatory_kwargs(self, **add_kwargs)
         self.kwargs = kwargs
 
-    def run(self):
-        return do_pixelsort(**self._kwargs)
+    def _generate_image(self):
+        return do_pixelsort(**self.kwargs)
 
 
 filter = Pixelsort(algo=1)

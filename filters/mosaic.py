@@ -30,7 +30,7 @@ class Mosaic(EGWPluginFilter):
         self.kwargs = kwargs
 
 
-    def run(self):
+    def _generate_image(self):
         return _mosaic(**self._kwargs)
 
 

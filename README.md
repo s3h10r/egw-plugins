@@ -1,5 +1,6 @@
 some plugins for [einguteswerkzeug](https://github.com/s3h10r/einguteswerkzeug).
-if you want to roll your own plugin take a look at the [example-plugin](examples/example.py).
+to roll your own just take a look at the [base-class of filter & generator](__init__.py)
+and the provided implementations.
 
 Credits & Thanks
 ================

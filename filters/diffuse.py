@@ -31,7 +31,7 @@ class Diffuse(EGWPluginFilter):
         self._define_mandatory_kwargs(self, **add_kwargs)
         self.kwargs = kwargs
 
-    def run(self):
+    def _generate_image(self):
         return _diffuse(**kwargs)
 
 

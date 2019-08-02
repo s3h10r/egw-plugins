@@ -24,7 +24,7 @@ class FindEdge(EGWPluginFilter):
         self.kwargs = kwargs
 
 
-    def run(self):
+    def _generate_image(self):
         return _find_edge(**self._kwargs)
 
 

@@ -5,7 +5,9 @@ base-classes of all filters and generators
 """
 from abc import ABC, abstractmethod
 import logging
+import random
 import string
+import sys
 from PIL import Image
 
 class EGWPluginBase(ABC):
@@ -13,12 +15,15 @@ class EGWPluginBase(ABC):
     abstract base class of all plugins for einguteswerkzeug
     """
     def __init__(self, name = None, version = None, description=None, author= None):
-        self._PLUGIN_IFACE_VERSION = "0.2.0"
+        self._PLUGIN_IFACE_VERSION = "0.4.0"
         self._kwargs = {}
         self._name = name
         self._author = author
         self._description = description
         self._version = version
+        # defining mandatory kwargs
+        add_kwargs = { }
+        self._define_mandatory_kwargs(self, **add_kwargs)
         super().__init__()
 
 
@@ -98,27 +103,10 @@ class EGWPluginBase(ABC):
             'plugin_iface_version' : self._PLUGIN_IFACE_VERSION
             })
 
+    @abstractmethod
+    def run(self):
+        return self._generate_image()
 
-        def _check_if_okay_to_run(self, null_value_allowed=False):
-            """
-            """
-            if null_value_allowed:
-                return True
-            for k,v in self._kwargs.items():
-                if not v:
-                    raise Exception("Sorry, mandatory argument '{}' not set.".format(k))
-            return True
-
-        @abstractmethod
-        def run(self):
-            if self._check_if_okay_to_run():
-                # do the work and return an Image instance...
-                pass
-
-
-        def execute(self):
-            # just an alias for run
-            return self.run(self)
 
 class EGWPluginFilter(EGWPluginBase):
     """
@@ -128,23 +116,19 @@ class EGWPluginFilter(EGWPluginBase):
         super().__init__(**kwargs)
         # defining additional mandatory kwargs
         add_kwargs = {'image' : None }
-        self._define_mandatory_kwargs(self, **add_kwargs)
-        if 'image' in kwargs:
-            self._kwargs['image'] = kwargs['image']
+        super()._define_mandatory_kwargs(self, **add_kwargs)
+
+
+    def run(self):
+        return self._generate_image()
 
 
     @abstractmethod
-    def run(self): # implement this in the subclass
+    def _generate_image(self):
         """
-        returns an Image instance
+        implement this in the subclass
         """
-        if self._check_if_okay_to_run():
-            # do the work and return an Image instance...
-            pass
-
-
-    def execute(self):
-        self.run(self)
+        return _do_filter_foo(**self.kwargs)
 
 
 class EGWPluginGenerator(EGWPluginBase):
@@ -155,18 +139,19 @@ class EGWPluginGenerator(EGWPluginBase):
         super().__init__(name, description, author, version)
         # defining additional mandatory kwargs
         add_kwargs = {'size' : (800,800) } # defines the image's output size
-        self._define_mandatory_kwargs(self, **add_kwargs)
+        super()._define_mandatory_kwargs(self, **add_kwargs)
+
+
+    def run(self):
+        return self._generate_image()
 
 
     @abstractmethod
-    def run(self): # implement this in the subclass
-        if self._check_if_okay_to_run():
-            # do the work and return an Image instance...
-            pass
-
-
-    def execute(self):
-        self.run(self)
+    def _generate_image(self):
+        """
+        implement this in the subclass
+        """
+        return _do_generator_foo(**self.kwargs)
 
 
 if __name__ == '__main__':

@@ -43,16 +43,14 @@ class Mondrian(EGWPluginGenerator):
                     'outline_color' : (0,0,0,255),
                     'outline_width' : int(self.kwargs['size'][1] * 0.005),
                     'img_mode' : "RGBA",
-                    'seed' : random.randrange(sys.maxsize),
                   }
         self._define_mandatory_kwargs(self, **add_kwargs)
         self.kwargs = kwargs
 
 
-    def run(self):
+    def _generate_image(self):
         _setup_globals(**self._kwargs)
         return _do_mondrian()
-
 
 
 generator = Mondrian()
@@ -67,15 +65,10 @@ def _setup_globals(**kwarg):
 
 def _do_mondrian():
     global kwargs
-    seed = kwargs['seed']
     img_mode = kwargs['img_mode']
     w = kwargs['size'][0]
     h = kwargs['size'][1]
     bg_color = kwargs['bg_color']
-    if not seed:
-        seed = random.randrange(sys.maxsize)
-    random.seed(seed)
-    log.info("seed: {}".format(seed))
     img = Image.new(img_mode, (w,h), bg_color)
     img = _mondrian(x = 0, y = 0, w = w, h = h, image = img)
     return img
@@ -168,9 +161,17 @@ def _mondrian(x = 0, y = 0, w = 1024, h = 768, image = None):
 
 
 if __name__ == '__main__':
+    gen = Mondrian()
+    seed, fout = random.randrange(sys.maxsize), None
     if len(sys.argv) < 2:
-        print("usage selftest: <me> image_out")
+        print(gen.help)
+        print("usage selftest: <me> image_out [<int seed>]")
+    elif len(sys.argv) < 3:
+        fout = sys.argv[1]
     else:
-        gen = Mondrian(size=(1024,768))
-        img = gen.run()
-        img.save(sys.argv[1])
+        seed = sys.argv[2]
+    log.info("seed: {}".format(seed))
+    random.seed(seed)
+    gen = Mondrian(size=(1024,768))
+    img = gen.run()
+    img.save(sys.argv[1])

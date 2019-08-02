@@ -31,7 +31,7 @@ class GlowingEdge(EGWPluginFilter):
         self.kwargs = kwargs
 
 
-    def run(self):
+    def _generate_image(self):
         return _glowing_edge(**self._kwargs)
 
 

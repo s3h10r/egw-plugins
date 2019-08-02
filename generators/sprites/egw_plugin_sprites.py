@@ -1,25 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #coding=utf-8
-
-# === einguteswerkzeug plugin-interface ===
-# --- all einguteswerkzeug-plugins (generators, filters) must implement this
 import logging
 import random
 import string
+import sys
+from PIL import Image, ImageDraw
 from einguteswerkzeug.helpers import get_resource_file
-
-name = "sprites"
-description = "generates random sprites - space invaders style. :) https://medium.freecodecamp.org/how-to-create-generative-art-in-less-than-100-lines-of-code-d37f379859f"
-kwargs = {'size' : random.randrange(3,99,2), # must be an odd integer
-          #'invaders' : random.randint(1,150), # nr invaders per row
-          'invaders' : random.randint(1,60), # nr invaders per row
-          'img_size'  : 800,
-          'file_out' : None,
-          }
-args=None
-author = "Eric Davidson"
-version = '0.2.0'
-__version__ = version
+from einguteswerkzeug.plugins import EGWPluginGenerator
 
 # --- configure logging
 log = logging.getLogger(__name__)
@@ -30,39 +17,42 @@ handler.setFormatter(formatter)
 log.addHandler(handler)
 # ---
 
-def run(size = 13, invaders = 8, img_size = 600, file_out = None):
+meta = {
+    "name" : "sprites",
+    "version" : "0.2.1",
+    "description" : "generates random sprites - space invaders style. :) https://medium.freecodecamp.org/how-to-create-generative-art-in-less-than-100-lines-of-code-d37f379859f",
+    "author" : "Eric Davidson"
+}
+
+class Sprites(EGWPluginGenerator):
+    def __init__(self, **kwargs):
+        super().__init__(**meta)
+        # defining mandatory kwargs (addionals to the mandatory of the base-class)
+        add_plugin_kwargs = { 'sprite_size' : random.randrange(3,99,2), # must be an odd integer
+                              'invaders' : random.randint(1,60), # nr invaders per row
+                              'file_out' : None,
+                             }
+
+        self._define_mandatory_kwargs(self, **add_plugin_kwargs)
+        self.kwargs = kwargs
+
+    def _generate_image(self):
+        return _create_sprites(**self.kwargs)
+
+
+generator = Sprites()
+assert isinstance(generator,EGWPluginGenerator)
+
+# --- .. here comes the plugin-specific part to get some work done...
+
+from .sprites import main as _sprites_main
+
+def _create_sprites(sprite_size = 13, invaders = 8, size = (600,600), file_out = None):
     """
     this is the wrapper around the functionality of the plugin.
     """
-    return _sprites_main(size = size, invaders = invaders, img_size = img_size, file_out = file_out), "generator %s v%s" % (name, __version__)
-
-# --- END all einguteswerkzeug-plugins (generators, filters) must implement this
-
-def get_plugin_doc(format='text'):
-    """
-    """
-    if format not in ('txt', 'text', 'plaintext'):
-        raise Exception("Sorry. format %s not available. Valid options are ['text']" % format)
-    tpl_doc = string.Template("""
-    filters.$name - $description
-    kwargs  : $kwargs
-    args    : $args
-    author  : $author
-    version : __version__
-    """)
-    return tpl_doc.substitute({
-        'name' : name,
-        'description' : description,
-        'kwargs' : kwargs,
-        'args'    : args,
-        'author'  : author,
-        'version' : __version__,
-        })
-
-if __name__ == '__main__':
-    print(get_plugin_doc())
-
-# === END einguteswerkzeug plugin-interface
-
-# --- .. here comes the plugin-specific part to get some work done...
-from .sprites import main as _sprites_main
+    if size[0] != size[1]:
+        raise Exception("size must be a sqare")
+    if sprite_size % 2 != 1:
+        raise Exception("sprite_size must be an odd integer but is {}".format(sprite_size))
+    return _sprites_main(size = sprite_size, invaders = invaders, img_size = size[0], file_out = file_out)

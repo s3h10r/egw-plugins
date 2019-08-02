@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 #coding=utf-8
-# === einguteswerkzeug plugin-interface ===
-# --- all einguteswerkzeug-plugins (generators, filters) must implement this
 import logging
 import json
 import math
@@ -10,20 +8,7 @@ import string
 import sys
 
 from PIL import Image, ImageDraw
-
-name = "nlines"
-description = "a generator plotting n lines shaped by randomness"
-kwargs = {  'nr_lines' : random.randint(3,800/20), 'thickness' : random.randint(1, 800/100),
-            'x_step' : random.randint(1,800/8), 'img_mode' : 'RGBA',
-            'color' : (random.randint(0,255),random.randint(0,255),random.randint(0,255),random.randint(200,255)),
-            'bg_color' : None, # if None then the generator chooses the complementary color to color for this
-            'draw_baseline' : False,
-            'seed' : random.randrange(sys.maxsize),
-            'size' : 800,
-          }
-author = "Sven Hessenmüller <sven.hessenmueller@gmail.com>"
-version = "0.1.4"
-__version__ = version
+from einguteswerkzeug.plugins import EGWPluginGenerator
 
 # --- configure logging
 log = logging.getLogger(__name__)
@@ -34,34 +19,35 @@ handler.setFormatter(formatter)
 log.addHandler(handler)
 # ---
 
-def run(**kwargs):
-    """
-    this is the interface/wrapper around the functionality of the plugin.
-    """
-    meta = None
-    return _generate_nlines(**kwargs), meta
-# --- END all einguteswerkzeug-plugins (generators, filters) must implement this
+meta = {
+    "name" : "nlines",
+    "version" : "0.1.6",
+    "description" : "a generator plotting n lines shaped by custom randomness",
+    "author" : "Sven Hessenmüller <sven.hessenmueller@gmail.com>"
+}
 
-def get_plugin_doc(format='text'):
-    """
-    """
-    if format not in ('txt', 'text', 'plaintext'):
-        raise Exception("Sorry. format %s not available. Valid options are ['text']" % format)
-    tpl_doc = string.Template("""
-    generator.$name - $description
-    kwargs  : $kwargs
-    author  : $author
-    version : $version
-    """)
-    return tpl_doc.substitute({
-        'name' : name,
-        'description' : description,
-        'kwargs' : kwargs,
-        'author'  : author,
-        'version' : __version__,
-        })
+class NLines(EGWPluginGenerator):
+    def __init__(self, **kwargs):
+        super().__init__(**meta)
+        # defining mandatory kwargs (addionals to the mandatory of the base-class)
+        self.add_plugin_kwargs = {  'nr_lines' : random.randint(3,800/20),
+                                    'thickness' : random.randint(1, 800/100),
+                                    'x_step' : random.randint(1,800/8),
+                                    'img_mode' : 'RGBA',
+                                    'color' : (random.randint(0,255),random.randint(0,255),random.randint(0,255),random.randint(200,255)),
+                                    'bg_color' : None, # if None then the generator chooses the complementary color to color for this
+                                    'draw_baseline' : False,
+                                 }
+        self._define_mandatory_kwargs(self, **self.add_plugin_kwargs)
+        self.kwargs = kwargs
 
-# === END einguteswerkzeug plugin-interface
+    def _generate_image(self):
+        return _generate_nlines(**self.kwargs)
+
+
+generator = NLines()
+assert isinstance(generator,EGWPluginGenerator)
+
 
 # --- .. here comes the plugin-specific part to get some work done...
 
@@ -69,14 +55,14 @@ def get_plugin_doc(format='text'):
 # https://stackoverflow.com/questions/40233986/python-is-there-a-function-or-formula-to-find-the-complementary-colour-of-a-rgb
 
 # Sum of the min & max of (a, b, c)
-def hilo(a, b, c):
+def _hilo(a, b, c):
     if c < b: b, c = c, b
     if b < a: a, b = b, a
     if c < b: b, c = c, b
     return a + c
 
-def complement(r, g, b):
-    k = hilo(r, g, b)
+def _complement(r, g, b):
+    k = _hilo(r, g, b)
     return tuple(k - u for u in (r, g, b))
 # --- END find complement color
 
@@ -105,13 +91,18 @@ def _sine_stuff(x,min,max):
 # ---
 
 # here we go
-def _generate_nlines(nr_lines = 10, thickness = 3, x_step = 10, img_mode = 'RGBA', color = (0,0,0,255), bg_color = None, draw_baseline = True, seed = None, size=800):
+def _generate_nlines( nr_lines = 10, thickness = 3, x_step = 10,
+                      img_mode = 'RGBA', color = (0,0,0,255),
+                      bg_color = None, draw_baseline = True,
+                      seed = None, size=(800,800) ):
+
     if not seed:
         seed = random.randrange(sys.maxsize)
     random.seed(seed)
+
     if not isinstance(color, tuple):
         color = tuple(color)
-    complement_color = complement(color[0], color[1], color[2])
+    complement_color = _complement(color[0], color[1], color[2])
     if img_mode == 'RGBA':
         complement_color = (complement_color[0],complement_color[1],complement_color[2],255)
     if not bg_color:
@@ -119,11 +110,10 @@ def _generate_nlines(nr_lines = 10, thickness = 3, x_step = 10, img_mode = 'RGBA
         bg_color = complement_color
     if not isinstance(bg_color, tuple):
         bg_color = tuple(bg_color)
-    img = Image.new(img_mode, (size,size), bg_color)
-    margin = int(size * 0.10)
-    max_line_height = int ((size - margin*2)/ nr_lines)
-    max_line_length = int(size - margin*2)
-    log.info("seed : {}".format(seed))
+    img = Image.new(img_mode, size, bg_color)
+    margin = int(size[0] * 0.10)
+    max_line_height = int ((size[1] - margin*2)/ nr_lines)
+    max_line_length = int(size[0] - margin*2)
     log.info("nr_lines: {} x_step: {} thickness: {} margin: {}".format(nr_lines, x_step, thickness, margin))
     log.info("color: {} bg_color: {}".format(color, bg_color))
     log.debug("max_line_height: {} max_line_length: {}".format(max_line_height, max_line_length,))
@@ -134,7 +124,7 @@ def _generate_nlines(nr_lines = 10, thickness = 3, x_step = 10, img_mode = 'RGBA
     draw = ImageDraw.Draw(img)
     xf = 0 + margin         # from
     yf = margin + max_line_height
-    xt = size - margin      # to
+    xt = size[0] - margin      # to
     yt = yf
     for i in range(nr_lines):
         if draw_baseline:
@@ -158,11 +148,20 @@ def _generate_nlines(nr_lines = 10, thickness = 3, x_step = 10, img_mode = 'RGBA
         yt = yf
     return img
 
+
 if __name__ == '__main__':
-    print(get_plugin_doc())
-    img = _generate_nlines(**kwargs)
-    if len(sys.argv) > 1:
+    gen = NLines()
+    seed, fout = random.randrange(sys.maxsize), None
+    if len(sys.argv) < 2:
+        print(gen.help)
+        print("usage selftest: <me> image_out [<int seed>]")
+    elif len(sys.argv) < 3:
         fout = sys.argv[1]
-        img.save(fout)
     else:
-        print("usage (selftest): %s <file_out.jpg>" % __file__)
+        seed = sys.argv[2]
+    log.info("seed: {}".format(seed))
+    random.seed(seed)
+    gen = NLines(size=(1024,1024))
+    print(gen.help)
+    img = gen.run()
+    img.save(sys.argv[1])

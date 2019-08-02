@@ -32,7 +32,7 @@ class Oil2(EGWPluginFilter):
         self.kwargs = kwargs
 
 
-    def run(self):
+    def _generate_image(self):
         return _oil_painting(**self._kwargs)
 
 

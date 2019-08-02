@@ -36,7 +36,10 @@ class ASCIIArt(EGWPluginFilter):
         self._define_mandatory_kwargs(self, **add_kwargs)
         self.kwargs = kwargs
 
-    def run(self):
+    def _generate_image(self):
+        """
+        implement this in the subclass or overwrite `.run()`` in it
+        """
         img = self.kwargs['image']
         img_as_ascii = _convert_image_to_ascii(img)
         img = _convert_ascii_to_image(img_as_ascii, self.kwargs['color'])

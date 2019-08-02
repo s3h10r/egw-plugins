@@ -34,7 +34,7 @@ class Composite(EGWPluginFilter):
         self._define_mandatory_kwargs(self, **add_kwargs)
         self.kwargs = kwargs
 
-    def run(self):
+    def _generate_image(self):
         return _do_some_work(**self._kwargs)
 
 

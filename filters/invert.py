@@ -30,8 +30,8 @@ class Invert(EGWPluginFilter):
         self.kwargs = kwargs
 
 
-    def run(self):
-        return _ice(**self._kwargs)
+    def _generate_image(self):
+        return _invert(**self._kwargs)
 
 
 filter = Invert()

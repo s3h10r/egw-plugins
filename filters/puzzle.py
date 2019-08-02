@@ -33,8 +33,8 @@ class Puzzle(EGWPluginFilter):
         self.kwargs = kwargs
 
 
-    def run(self):
-        return _puzzle(**self._kwargs)
+    def _generate_image(self):
+        return _puzzle(**self.kwargs)
 
 
 filter = Puzzle()
@@ -46,6 +46,7 @@ def _puzzle(image = None, seed = None):
         seed = random.randrange(sys.maxsize)
     random.seed(seed)
     log.info("seed: {}".format(seed))
+
     im = image
     width, height = im.size
     width = int( ((width + 99) / 100) * 100 )
