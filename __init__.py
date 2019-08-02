@@ -30,6 +30,21 @@ class EGWPluginBase(ABC):
         return self._PLUGIN_IFACE_VERSION
 
 
+    @property
+    def name(self):
+        return self._name
+
+
+    @property
+    def version(self):
+        return self._version
+
+
+    @property
+    def author(self):
+        return self._author
+
+
     def _define_mandatory_kwargs(self, *args, **kwargs):
         """
         should be used in every subclasses __init__-function to define

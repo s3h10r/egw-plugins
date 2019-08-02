@@ -11,67 +11,13 @@ import sys
 import colorsys
 from PIL import Image
 
-# --- all einguteswerkzeug-plugins (generators, filters) must implement this
-name = "pixelsort"
-description = "a filter which rearranges the pixels of an input image via sorting them by color"
-kwargs = { 'image' : '<instance of PIL Image>', 'algo' : 10, } # plugin specific arguments (if any)
-args = None
-author = "Sven Hessenmüller <sven.hessenmueller@gmail.com>"
-__version__ = "0.1.8"
-version = __version__
-
-# --- configure logging
-log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
-handler = logging.StreamHandler() # console-handler
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-log.addHandler(handler)
-# ---
-
-def run(image = None, algo=10):
-    """
-    this is the interface/wrapper around the functionality of the plugin.
-    :param image : image to process
-    :param algo  : sorting algorithm
-    :type image: PIL Image
-    :type algo: integer value - one of [1,10,20]
-
-    :return: processed image
-    :rtype: PIL Image
-    """
-    return _do_pixelsort(image, algo)
-
-# --- END all einguteswerkzeug-plugins (generators, filters) must implement this
-
-def get_plugin_doc(format='text'):
-    """
-    """
-    if format not in ('txt', 'text', 'plaintext'):
-        raise Exception("Sorry. format %s not available. Valid options are ['text']" % format)
-    tpl_doc = string.Template("""
-    filters.$name - $description
-    kwargs  : $kwargs
-    args    : $args
-    author  : "Sven Hessenmüller <sven.hessenmueller@gmail.com>"
-    version : __version__
-    """)
-    return tpl_doc.substitute({
-        'name' : name,
-        'description' : description,
-        'kwargs' : kwargs,
-        'args'    : args,
-        'author'  : author,
-        'version' : __version__,
-        })
-
-def _lum (r,g,b):
+def _lum (self, r,g,b):
     """
     sorting directly for the perceived luminosity of a colour
     """
     return math.sqrt( .241 * r + .691 * g + .068 * b )
 
-def _do_pixelsort(image, algo=10):
+def do_pixelsort(image, algo=10):
     img_in = image
     if not isinstance(image, Image.Image):
         img_in = Image.open(image)
@@ -111,4 +57,8 @@ def _do_pixelsort(image, algo=10):
     return img_out
 
 if __name__ == '__main__':
-    print(get_plugin_doc())
+    if len(sys.argv) < 3:
+        print("usage selftest: <me> image_in image_out")
+    else:
+        img = do_pixelsort(image = sys.argv[1], algo = 1)
+        img.save(sys.argv[2])
