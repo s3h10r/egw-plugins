@@ -38,18 +38,18 @@ class Diffuse(EGWPluginFilter):
 filter = Diffuse()
 assert isinstance(filter,EGWPluginFilter)
 
-def _diffuse(img, degree = 32):
+def _diffuse(image, degree = 32):
     '''
     @效果：扩散
-    @param img: instance of Image
+    @param image: instance of Image
     @param degree: 扩散范围，大小[1, 32]
     @return: instance of Image
     '''
     degree = min(max(1, degree), 32)
-    width, height = img.size
-    dst_img = Image.new(img.mode, (width, height))
-    pix = img.load()
-    dst_pix = dst_img.load()
+    width, height = image.size
+    dst_image = Image.new(image.mode, (width, height))
+    pix = image.load()
+    dst_pix = dst_image.load()
     for w in range(width):
         for h in range(height):
             # 随机获取当前像素周围一随机点
@@ -59,7 +59,7 @@ def _diffuse(img, degree = 32):
             x = min(max(x, 0), width - 1)
             y = min(max(y, 0), height - 1)
             dst_pix[w, h] = pix[x, y]
-    return dst_img
+    return dst_image
 
 filter = Diffuse()
 assert isinstance(filter,EGWPluginFilter)

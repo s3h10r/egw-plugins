@@ -39,16 +39,16 @@ filter = GlowingEdge()
 assert isinstance(filter,EGWPluginFilter)
 
 
-def _glowing_edge(img):
+def _glowing_edge(image):
     '''
     @效果：照亮边缘
-    @param img: instance of Image
+    @param image: instance of Image
     @return: instance of Image
     '''
-    if img.mode != "RGBA":
-        img = img.convert("RGBA")
-    width, height = img.size
-    pix = img.load()
+    if image.mode != "RGBA":
+        image = image.convert("RGBA")
+    width, height = image.size
+    pix = image.load()
     for w in range(width-1):
         for h in range(height-1):
             bottom = pix[w, h+1] # 下方像素点
@@ -60,4 +60,4 @@ def _glowing_edge(img):
                      for item in list(zip(current, bottom, right))[:3]]
             pixel.append(current[3])
             pix[w, h] = tuple([min(max(0, i), 255) for i in pixel]) # 限制各分量值介于[0, 255]
-    return img
+    return image

@@ -29,10 +29,10 @@ class Emboss(EGWPluginFilter):
 filter = Emboss()
 assert isinstance(filter,EGWPluginFilter)
 
-def _emboss(img):
+def _emboss(image):
     '''
     @效果：浮雕
-    @param img: instance of Image
+    @param image: instance of Image
     @return: instance of Image
 
     @不推荐使用，PIL已经内置浮雕的滤镜处理
@@ -43,4 +43,4 @@ def _emboss(img):
                 [0, 4, 0],
                 [-1, 0, -1]]
     m = Matrix33(matrix33, offset=127)
-    return m.convolute(img) # 进行卷积转换
+    return m.convolute(image) # 进行卷积转换

@@ -37,13 +37,13 @@ class Ice(EGWPluginFilter):
     def _ice(image):
         '''
         @效果：冰冻
-        @param img: instance of Image
+        @param image: instance of Image
         @return: instance of Image
         '''
-        if img.mode != "RGB":
-            img.convert("RGB")
+        if image.mode != "RGB":
+            image.convert("RGB")
         width, height = image.size
-        pix = img.load()
+        pix = image.load()
         for w in range(width):
             for h in range(height):
                 r, g, b = pix[w, h]

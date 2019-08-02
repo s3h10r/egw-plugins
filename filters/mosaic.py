@@ -40,17 +40,17 @@ assert isinstance(filter,EGWPluginFilter)
 
 def _mosaic(image, block_size = 32):
     '''
-    @param img: instance of Image
+    @param image: instance of Image
     @param block_size: [1, N]
     @return: instance of Image
     '''
 
     if image.mode != "RGBA":
-        img = image.convert("RGBA")
+        image = image.convert("RGBA")
     width, height = image.size
     pix = image.load()
-    dst_img = Image.new("RGBA", (width, height))
-    dst_pix = dst_img.load()
+    dst_image = Image.new("RGBA", (width, height))
+    dst_pix = dst_image.load()
     for w in range(0, width, block_size):
         for h in range(0, height, block_size):
             r_sum, g_sum, b_sum = 0, 0, 0
@@ -66,4 +66,4 @@ def _mosaic(image, block_size = 32):
             for i in range(w, min(w+block_size, width)):
                 for j in range(h, min(h+block_size, height)):
                     dst_pix[i, j] = r_ave, g_ave, b_ave, pix[w, h][3]
-    return dst_img
+    return dst_image
