@@ -4,15 +4,8 @@
 # --- all einguteswerkzeug-plugins (generators, filters) must implement this
 import logging
 import string
-
-name = "oil2"
-description = "a filter."
-kwargs = {'image' : '<instance of PIL Image>',
-          'brush_size' : 6, # 1-8
-          'roughness' : 200,} # 1-255
-args = None
-author = "Chine, 2011, https://github.com/Tinker-S/SomeImageFilterWithPython"
-version = "0.2.0"
+from PIL import Image
+from einguteswerkzeug.plugins import EGWPluginFilter
 
 # --- configure logging
 log = logging.getLogger(__name__)
@@ -23,42 +16,34 @@ handler.setFormatter(formatter)
 log.addHandler(handler)
 # ---
 
-def run(image, brush_size = 6, roughness = 200):
-    """
-    this is the interface/wrapper around the functionality of the plugin.
-    """
-    return _oil_painting(image, brush_size, roughness)
+fmeta = {
+    "name" : "oil2",
+    "version" : "0.2.1",
+    "description" : "",
+    "author" : "Chine, 2011, https://github.com/Tinker-S/SomeImageFilterWithPython"
+}
 
-# --- END all einguteswerkzeug-plugins (generators, filters) must implement this
+class Oil2(EGWPluginFilter):
+    def __init__(self, **kwargs):
+        super().__init__(**fmeta)
+        # defining mandatory kwargs (addionals to the mandatory of the base-class)
+        add_kwargs = { 'brush_size' : 6, 'roughness' : 200,}
+        self._define_mandatory_kwargs(self, **add_kwargs)
+        self.kwargs = kwargs
 
-def get_plugin_doc(format='text'):
-    """
-    """
-    if format not in ('txt', 'text', 'plaintext'):
-        raise Exception("Sorry. format %s not available. Valid options are ['text']" % format)
-    tpl_doc = string.Template("""
-    filters.$name - $description
-    kwargs  : $kwargs
-    args    : $args
-    author  : $author
-    version : __version__
-    """)
-    return tpl_doc.substitute({
-        'name' : name,
-        'description' : description,
-        'kwargs' : kwargs,
-        'args'    : args,
-        'author'  : author,
-        'version' : __version__,
-        })
-# === END einguteswerkzeug plugin-interface
 
-from PIL import Image
+    def run(self):
+        return _oil_painting(**self._kwargs)
 
-def _oil_painting(img, brush_size = 6, roughness = 200):
+
+filter = Oil2()
+assert isinstance(filter,EGWPluginFilter)
+
+
+def _oil_painting(image, brush_size = 6, roughness = 200):
     '''
     @效果：油画
-    @param img: instance of Image
+    @param image: instance of Image
     @param brush_size: 笔刷大小，实际上为对当前像素点进行计算的范围 ，大小范围：[1, 8]
     @param roughness: 粗糙值，大小范围：[1, 255]
     @return: instance of Image
@@ -68,26 +53,24 @@ def _oil_painting(img, brush_size = 6, roughness = 200):
     '''
     if brush_size < 1: brush_size = 1
     if brush_size > 8: brush_size = 8
-
     if roughness < 1: roughness = 1
     if roughness > 255: roughness = 255
-
-    width, height = img.size
+    width, height = image.size
 
     def L(p):
         '''
         @计算某个像素点p的灰度值
-        @为了加快计算速度，没有再用img.convert('L')生成一个灰度图
+        @为了加快计算速度，没有再用image.convert('L')生成一个灰度图
         '''
         l = p[0] * 299/1000 + p[1] * 587/1000 + p[2] * 114/1000
         return int(l)
 
-    if img.mode != "RGBA":
-        img = img.convert("RGBA")
-    dst_img = Image.new("RGBA", (width, height)) # 目标图片
+    if image.mode != "RGBA":
+        image = image.convert("RGBA")
+    dst_image = Image.new("RGBA", (width, height)) # 目标图片
 
-    pix = img.load()
-    dst_pix = dst_img.load()
+    pix = image.load()
+    dst_pix = dst_image.load()
 
     # 主计算过程
     # 计算当前像素点的brush_size宽度范围内
@@ -112,7 +95,7 @@ def _oil_painting(img, brush_size = 6, roughness = 200):
 
             dst_pix[w, h] = tuple(RGBA)
 
-    return dst_img
+    return dst_image
 
 def _groupby(iterable, func):
     '''

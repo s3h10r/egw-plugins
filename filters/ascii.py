@@ -8,18 +8,9 @@ import logging
 import os
 import random
 import sys
-
-from einguteswerkzeug.helpers.gfx import get_exif, scale_image_to_square, scale_image, scale_square_image, trim
-
 from PIL import Image, ImageDraw, ImageFont, ImageOps
-
-# --- all einguteswerkzeug-plugins (generators, filters) must implement this
-name = "ascii"
-description = "this filter converts an image into ascii-art"
-kwargs = { 'image' : '<instance of PIL Image>', 'color' : (0,0,0), } # plugin specific arguments (if any)
-args = None
-author = "optional author and copyright infos"
-version = "0.2.0"
+from einguteswerkzeug.helpers.gfx import get_exif, scale_image_to_square, scale_image, scale_square_image, trim
+from einguteswerkzeug.plugins import EGWPluginFilter
 
 # --- configure logging
 log = logging.getLogger(__name__)
@@ -30,18 +21,30 @@ handler.setFormatter(formatter)
 log.addHandler(handler)
 # ---
 
-def run(image = None, color=(0,0,0)):
-    """
-    this is the interface/wrapper around the functionality of the plugin.
-    returns PIL Image
-    """
-    img = image
-    img_as_ascii = _convert_image_to_ascii(img)
-    img = _convert_ascii_to_image(img_as_ascii, color)
-    return img
-# --- END all einguteswerkzeug-plugins (generators, filters) must implement this
+fmeta = {
+    "name" : "ascii",
+    "version" : "0.2.1",
+    "description" : "this filter converts an image into ascii-art",
+    "author" : "diverse"
+}
+
+class ASCIIArt(EGWPluginFilter):
+    def __init__(self, **kwargs):
+        super().__init__(**fmeta)
+        # defining mandatory kwargs (addionals to the mandatory of the base-class)
+        add_kwargs = { 'color' : (0,0,0), }
+        self._define_mandatory_kwargs(self, **add_kwargs)
+        self.kwargs = kwargs
+
+    def run(self):
+        img = self.kwargs['image']
+        img_as_ascii = _convert_image_to_ascii(img)
+        img = _convert_ascii_to_image(img_as_ascii, self.kwargs['color'])
+        return img
 
 
+filter = ASCIIArt()
+assert isinstance(filter,EGWPluginFilter)
 
 
 # --- different variants of image to ascii & reverse found on the internet
@@ -173,30 +176,3 @@ def _convert_ascii_to_image(image_as_ascii, color = (0,0,0)):
 
 def _ascii_to_console(img_as_ascii = None):
     print(img_as_ascii)
-
-if __name__ == '__main__':
-    fn = sys.argv[1]
-    os.system('feh %s' % fn)
-    w_out = int(sys.argv[2])
-    img = Image.open(fn)
-    img = scale_image(img, new_width = w_out)
-    img_as_ascii = _image_to_ascii(img)
-    ascii_to_console(img_as_ascii)
-    target = "out.png"
-    img = convert_ascii_to_image(img_as_ascii)
-    img.save(target)
-    print(target)
-
-    img = Image.open(fn)
-    fonts = glob.glob('fonts/*ttf')
-    i = random.randint(0,len(fonts)-1)
-    f_font=fonts[i]
-    target = "out_b.png"
-    img_as_ascii = _image_to_ascii2(img)
-    print(img_as_ascii)
-    img = convert_ascii_to_image(img_as_ascii)
-    img.save(target)
-    print(target)
-
-    os.system('feh out.png')
-    os.system('feh out_b.png')

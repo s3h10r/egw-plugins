@@ -33,12 +33,6 @@ class Pixelsort(EGWPluginFilter):
 
 
 filter = Pixelsort(algo=1)
-
-#print(filter.help)
-#print(isinstance(filter_pixelsort, EGWPluginBase))
-#print(isinstance(filter_pixelsort, EGWPluginFilter))
-#print(isinstance(filter_pixelsort, EGWPluginGenerator))
-
 assert isinstance(filter,Pixelsort)
 assert issubclass(Pixelsort,EGWPluginFilter)
 assert isinstance(filter,EGWPluginFilter)

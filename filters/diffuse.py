@@ -1,19 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #coding=utf-8
-import random
-from PIL import Image
-# === einguteswerkzeug plugin-interface ===
-# --- all einguteswerkzeug-plugins (generators, filters) must implement this
 import logging
+import random
 import string
-
-name = "diffuse"
-description = "a filter."
-kwargs = {'image' : '<instance of PIL Image>',
-          'diffuse' : random.randint(1,32), }
-args = None
-author = "Chine, 2011, https://github.com/Tinker-S/SomeImageFilterWithPython"
-version = "0.1.8"
+from PIL import Image
+from einguteswerkzeug.helpers.gfx import get_exif, scale_image_to_square, scale_image, scale_square_image, trim
+from einguteswerkzeug.plugins import EGWPluginFilter
 
 # --- configure logging
 log = logging.getLogger(__name__)
@@ -24,39 +16,27 @@ handler.setFormatter(formatter)
 log.addHandler(handler)
 # ---
 
-def run(image, degree = 32):
-    """
-    this is the interface/wrapper around the functionality of the plugin.
-    """
-    return _diffuse(image, degree)
+fmeta = {
+    "name" : "diffuse",
+    "version" : "0.1.9",
+    "description" : "",
+    "author" : "Chine, 2011, https://github.com/Tinker-S/SomeImageFilterWithPython"
+}
 
-# --- END all einguteswerkzeug-plugins (generators, filters) must implement this
+class Diffuse(EGWPluginFilter):
+    def __init__(self, **kwargs):
+        super().__init__(**fmeta)
+        # defining mandatory kwargs (addionals to the mandatory of the base-class)
+        add_kwargs = { 'degree' : random.randint(1,32), }
+        self._define_mandatory_kwargs(self, **add_kwargs)
+        self.kwargs = kwargs
 
-def get_plugin_doc(format='text'):
-    """
-    """
-    if format not in ('txt', 'text', 'plaintext'):
-        raise Exception("Sorry. format %s not available. Valid options are ['text']" % format)
-    tpl_doc = string.Template("""
-    filters.$name - $description
-    kwargs  : $kwargs
-    args    : $args
-    author  : $author
-    version : __version__
-    """)
-    return tpl_doc.substitute({
-        'name' : name,
-        'description' : description,
-        'kwargs' : kwargs,
-        'args'    : args,
-        'author'  : author,
-        'version' : __version__,
-        })
+    def run(self):
+        return _diffuse(**kwargs)
 
-if __name__ == '__main__':
-    print(get_plugin_doc())
 
-# === END einguteswerkzeug plugin-interface
+filter = Diffuse()
+assert isinstance(filter,EGWPluginFilter)
 
 def _diffuse(img, degree = 32):
     '''
@@ -65,26 +45,21 @@ def _diffuse(img, degree = 32):
     @param degree: 扩散范围，大小[1, 32]
     @return: instance of Image
     '''
-
     degree = min(max(1, degree), 32)
-
     width, height = img.size
-
     dst_img = Image.new(img.mode, (width, height))
-
     pix = img.load()
     dst_pix = dst_img.load()
-
     for w in range(width):
         for h in range(height):
             # 随机获取当前像素周围一随机点
             x = w + random.randint(-degree, degree)
             y = h + random.randint(-degree, degree)
-
             # 限制范围
             x = min(max(x, 0), width - 1)
             y = min(max(y, 0), height - 1)
-
             dst_pix[w, h] = pix[x, y]
-
     return dst_img
+
+filter = Diffuse()
+assert isinstance(filter,EGWPluginFilter)

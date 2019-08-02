@@ -1,22 +1,12 @@
 #!/usr/bin/env python
 #coding=utf-8
-
-# === einguteswerkzeug plugin-interface ===
-# --- all einguteswerkzeug-plugins (generators, filters) must implement this
 import logging
 import random
 import string
 import sys
-
 from PIL import Image, ImageDraw
-
-name = "puzzle"
-description = "a filter about guess what"
-author = ""
-version = "0.0.2"
-__version__ = version
-
-kwargs = {'image' : '<instance of PIL Image>', 'seed' : random.randrange(sys.maxsize)}
+from PIL import Image
+from einguteswerkzeug.plugins import EGWPluginFilter
 
 # --- configure logging
 log = logging.getLogger(__name__)
@@ -27,37 +17,31 @@ handler.setFormatter(formatter)
 log.addHandler(handler)
 # ---
 
-def run(**kwargs):
-    """
-    this is the interface/wrapper around the functionality of the plugin.
-    """
-    return _do_puzzle(**kwargs)
-# --- END all einguteswerkzeug-plugins (generators, filters) must implement this
+fmeta = {
+    "name" : "puzzle",
+    "version" : "0.0.3",
+    "description" : "",
+    "author" : "codegolf"
+}
 
-def get_plugin_doc(format='text'):
-    """
-    """
-    if format not in ('txt', 'text', 'plaintext'):
-        raise Exception("Sorry. format %s not available. Valid options are ['text']" % format)
-    tpl_doc = string.Template("""
-    generator.$name - $description
-    kwargs  : $kwargs
-    author  : $author
-    version : $version
-    """)
-    return tpl_doc.substitute({
-        'name' : name,
-        'description' : description,
-        'kwargs' : kwargs,
-        'author'  : author,
-        'version' : __version__,
-        })
+class Puzzle(EGWPluginFilter):
+    def __init__(self, **kwargs):
+        super().__init__(**fmeta)
+        # defining mandatory kwargs (addionals to the mandatory of the base-class)
+        add_kwargs = { 'seed' : random.randrange(sys.maxsize) }
+        self._define_mandatory_kwargs(self, **add_kwargs)
+        self.kwargs = kwargs
 
-# === END einguteswerkzeug plugin-interface
 
-# --- .. here comes the plugin-specific part to get some work done...
+    def run(self):
+        return _puzzle(**self._kwargs)
 
-def _do_puzzle(image = None, seed = None):
+
+filter = Puzzle()
+assert isinstance(filter,EGWPluginFilter)
+
+
+def _puzzle(image = None, seed = None):
     if not seed:
         seed = random.randrange(sys.maxsize)
     random.seed(seed)
@@ -77,6 +61,3 @@ def _do_puzzle(image = None, seed = None):
         for y in range(int(height / 100)):
             im2.paste(blocks.pop().rotate(90 * random.randint(0,3)), (x * 100, y * 100))
     return im2
-
-if __name__ == '__main__':
-    print(get_plugin_doc())
