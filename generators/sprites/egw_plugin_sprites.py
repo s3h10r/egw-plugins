@@ -45,7 +45,7 @@ assert isinstance(generator,EGWPluginGenerator)
 
 # --- .. here comes the plugin-specific part to get some work done...
 
-from .sprites import main as _sprites_main
+from einguteswerkzeug.plugins.generators.sprites.sprites import main as _sprites_main
 
 def _create_sprites(sprite_size = 13, invaders = 8, size = (600,600), file_out = None):
     """
