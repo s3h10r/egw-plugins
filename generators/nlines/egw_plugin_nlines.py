@@ -37,6 +37,7 @@ class NLines(EGWPluginGenerator):
                                     'color' : (random.randint(0,255),random.randint(0,255),random.randint(0,255),random.randint(200,255)),
                                     'bg_color' : None, # if None then the generator chooses the complementary color to color for this
                                     'draw_baseline' : False,
+                                    'seed' : None
                                  }
         self._define_mandatory_kwargs(self, **self.add_plugin_kwargs)
         self.kwargs = kwargs
@@ -95,9 +96,9 @@ def _generate_nlines( nr_lines = 10, thickness = 3, x_step = 10,
                       img_mode = 'RGBA', color = (0,0,0,255),
                       bg_color = None, draw_baseline = True,
                       seed = None, size=(800,800) ):
-
     if not seed:
         seed = random.randrange(sys.maxsize)
+    log.info("seed: {}".format(seed))
     random.seed(seed)
 
     if not isinstance(color, tuple):

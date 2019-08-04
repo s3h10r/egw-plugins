@@ -34,7 +34,7 @@ class Ice(EGWPluginFilter):
         return self._ice(**self._kwargs)
 
 
-    def _ice(image):
+    def _ice(self,image):
         '''
         @效果：冰冻
         @param image: instance of Image
