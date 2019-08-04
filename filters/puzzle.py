@@ -71,7 +71,7 @@ def _puzzle(image = None, seed = None, block_size = 100):
     while (width % block_size != 0) and block_size <= max_block_size:
         block_size += 1
     if (width % block_size != 0):
-        block_size = block_size_org
+        block_size = block_size_orig
         while (width % block_size != 0) and (block_size >= min_block_size):
             block_size -= 1
     assert(width % block_size == 0)
