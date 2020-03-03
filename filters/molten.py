@@ -50,7 +50,12 @@ def _molten(image):
     pix = image.load()
     for w in range(width):
         for h in range(height):
-            r, g, b = pix[w, h]
+            if len(pix[w,h]) == 3:
+                r, g, b = pix[w, h]
+            elif len(pix[w,h]) == 4:
+                r, g, b, a = pix[w,h]
+            else:
+                raise Exception("couldn't fetch RGB(A) value of pixel.")
             pix[w, h] = min(255, int(abs(r * 128 / (g + b + 1)))), \
                         min(255, int(abs(g * 128 / (b + r + 1)))), \
                         min(255, int(abs(b * 128 / (r + g + 1))))
