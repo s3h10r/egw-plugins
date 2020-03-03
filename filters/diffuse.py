@@ -32,7 +32,7 @@ class Diffuse(EGWPluginFilter):
         self.kwargs = kwargs
 
     def _generate_image(self):
-        return _diffuse(**kwargs)
+        return _diffuse(**self.kwargs)
 
 
 filter = Diffuse()
