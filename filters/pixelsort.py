@@ -30,7 +30,12 @@ def do_pixelsort(image, algo=10):
     for x in range(0, xs):
       for y in range(0, ys):
         # ( )  Get the RGB color of the pixel
-        [r, g, b] = img_in_pixels[x, y]
+        if len(img_in_pixels[x,y]) == 3:
+            [r, g, b] = img_in_pixels[x, y]
+        elif len(img_in_pixels[x,y]) == 4:
+            [r, g, b, a] = img_in_pixels[x, y]
+        else:
+            raise Exception("couldn't fetch RGB(A) value of pixel.")
         colors_rgb.append([r,g,b])
 
     # sort the colors by choosen algo
