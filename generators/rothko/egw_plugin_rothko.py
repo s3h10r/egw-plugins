@@ -3,6 +3,7 @@
 import logging
 import json
 import math
+import os
 import random
 import string
 import sys
@@ -21,7 +22,7 @@ log.addHandler(handler)
 
 meta = {
     "name" : "rothko",
-    "version" : "0.1.0",
+    "version" : "0.1.1",
     "description" : "adaption of [RothkoBot](https://github.com/ZacharyDavis/RothkoBot), Copyright (c) 2017 Zachary Davis",
 }
 
@@ -59,7 +60,7 @@ def _do_rothko(color_file='colors.txt', seed = None, size=(418,518), \
     draw = ImageDraw.Draw(img)
 
     # read colornames and rgb-string from file
-    f_in = open(color_file, "r")
+    f_in = open("{}/{}".format(os.path.dirname(os.path.realpath(__file__)),color_file),'r')
     colors = f_in.read().splitlines()
     f_in.close()
     four_colors = False
