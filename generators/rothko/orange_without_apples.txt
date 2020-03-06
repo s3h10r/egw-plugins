@@ -1,0 +1,9 @@
+eins,#9C5C00
+zwei,#DF9630
+drei,#BC740F
+vier,#784600
+fünf,#4D2D00
+Chartreuse,#DAD870
+Mimosa,#FFCD58
+Orange,#FF9636
+Red Orange,#FF5C4D

@@ -1,0 +1,4 @@
+Chartreuse,#DAD870
+Mimosa,#FFCD58
+Orange,#FF9636
+Red Orange,#FF5C4D
