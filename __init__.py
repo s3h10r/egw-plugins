@@ -15,7 +15,7 @@ class EGWPluginBase(ABC):
     abstract base class of all plugins for einguteswerkzeug
     """
     def __init__(self, name = None, version = None, description=None, author= None):
-        self._PLUGIN_IFACE_VERSION = "0.4.0"
+        self._PLUGIN_IFACE_VERSION = "0.4.1"
         self._kwargs = {}
         self._name = name
         self._author = author
@@ -135,8 +135,8 @@ class EGWPluginGenerator(EGWPluginBase):
     """
     base-class of a generator-plugin for einguteswerkzeug
     """
-    def __init__(self, name, version, description = None, author = None):
-        super().__init__(name, description, author, version)
+    def __init__(self, name = None, version = None, description = None, author = None):
+        super().__init__(name = name, version = version, author = author, description = description)
         # defining additional mandatory kwargs
         add_kwargs = {'size' : (800,800) } # defines the image's output size
         super()._define_mandatory_kwargs(self, **add_kwargs)
