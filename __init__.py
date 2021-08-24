@@ -117,7 +117,7 @@ class EGWPluginFilter(EGWPluginBase):
     """
     base-class of a filter-plugin for einguteswerkzeug
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # defining additional mandatory kwargs
         add_kwargs = {'image' : None }
